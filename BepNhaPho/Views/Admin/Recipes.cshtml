@@ -1,0 +1,63 @@
+@model AdminRecipeListViewModel
+@{
+    Layout = "_AdminLayout";
+    ViewData["Title"] = "Quản lý công thức";
+}
+
+<section class="page-section">
+    <div class="container">
+        <div class="section-heading">
+            <p class="eyebrow">KHU VỰC QUẢN TRỊ</p>
+            <h1>Quản lý công thức</h1>
+            <p class="text-muted">Xem công thức theo trạng thái và gỡ nội dung vi phạm.</p>
+        </div>
+        <form asp-action="Recipes" method="get" class="filter-bar">
+            <label for="status">Trạng thái</label>
+            <select id="status" name="status" class="form-select">
+                <option value="">Tất cả</option>
+                <option value="ChoDuyet" selected="@(Model.Status == "ChoDuyet")">Chờ duyệt</option>
+                <option value="DaDuyet" selected="@(Model.Status == "DaDuyet")">Đã duyệt</option>
+                <option value="BiTuChoi" selected="@(Model.Status == "BiTuChoi")">Bị từ chối</option>
+            </select>
+            <button class="btn btn-gold" type="submit">Lọc</button>
+        </form>
+        <div class="table-responsive paper-card">
+            <table class="table align-middle recipe-table">
+                <thead>
+                    <tr><th>Công thức</th><th>Tác giả</th><th>Trạng thái</th><th>Ngày đăng</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @if (Model.Recipes.Count == 0)
+                    {
+                        <tr><td colspan="5" class="table-empty-message">Chưa có công thức nào để hiển thị.</td></tr>
+                    }
+                    else
+                    {
+                        @foreach (var recipe in Model.Recipes)
+                        {
+                            <tr>
+                                <td>
+                                    <div class="table-recipe">
+                                        <img src="@Url.RecipeImage(recipe.AnhDaiDien)" asp-append-version="true" alt="" />
+                                        <div>
+                                            <a asp-controller="Recipe" asp-action="Details" asp-route-id="@recipe.MaCongThuc">@recipe.TieuDe</a>
+                                            <small>@recipe.DanhMuc.TenDanhMuc</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td>@recipe.NguoiDung.HoTen</td>
+                                <td><span class="status-badge @recipe.TrangThai">@(recipe.TrangThai == "ChoDuyet" ? "Chờ duyệt" : recipe.TrangThai == "DaDuyet" ? "Đã duyệt" : "Bị từ chối")</span></td>
+                                <td>@recipe.NgayTao.ToLocalTime().ToString("dd/MM/yyyy")</td>
+                                <td>
+                                    <form asp-action="DeleteRecipe" asp-route-id="@recipe.MaCongThuc" method="post" onsubmit="return confirm('Ẩn công thức khỏi website? Công thức và dữ liệu liên quan sẽ được giữ lại.')">
+                                        <button class="btn btn-sm btn-outline-danger" type="submit">Xóa</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</section>

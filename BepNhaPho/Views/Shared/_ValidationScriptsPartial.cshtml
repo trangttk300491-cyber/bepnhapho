@@ -1,0 +1,25 @@
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation@1.19.5/dist/jquery.validate.min.js"></script>
+<script>
+    if (window.jQuery && jQuery.validator) {
+        jQuery.extend(jQuery.validator.messages, {
+            required: 'Vui lòng nhập thông tin bắt buộc.',
+            remote: 'Vui lòng kiểm tra lại thông tin này.',
+            email: 'Email chưa đúng định dạng.',
+            url: 'Đường dẫn chưa đúng định dạng.',
+            date: 'Ngày nhập chưa hợp lệ.',
+            dateISO: 'Ngày nhập chưa đúng định dạng.',
+            number: 'Vui lòng nhập một số hợp lệ.',
+            digits: 'Vui lòng chỉ nhập chữ số.',
+            equalTo: 'Thông tin nhập lại chưa khớp.',
+            maxlength: jQuery.validator.format('Không được nhập quá {0} ký tự.'),
+            minlength: jQuery.validator.format('Vui lòng nhập ít nhất {0} ký tự.'),
+            rangelength: jQuery.validator.format('Vui lòng nhập từ {0} đến {1} ký tự.'),
+            range: jQuery.validator.format('Giá trị phải từ {0} đến {1}.'),
+            max: jQuery.validator.format('Giá trị phải nhỏ hơn hoặc bằng {0}.'),
+            min: jQuery.validator.format('Giá trị phải lớn hơn hoặc bằng {0}.'),
+            step: jQuery.validator.format('Giá trị phải là bội số của {0}.')
+        });
+    }
+</script>
+<script src="https://cdn.jsdelivr.net/npm/jquery-validation-unobtrusive@4.0.0/dist/jquery.validate.unobtrusive.min.js"></script>

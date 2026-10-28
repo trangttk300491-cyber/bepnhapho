@@ -1,0 +1,19 @@
+@model CongThuc
+@{ ViewData["Title"] = Model.TieuDe; }
+<section class="page-section">
+    <div class="container">
+        <div class="recipe-detail-top"><p class="eyebrow"><a asp-action="Index">CÔNG THỨC</a> / @Model.DanhMuc.TenDanhMuc</p><h1>@Model.TieuDe</h1><p class="detail-lede">@Model.MoTa</p><div class="detail-byline"><span>Chia sẻ bởi <strong>@Model.NguoiDung.HoTen</strong></span><span>@Model.NgayTao.ToLocalTime().ToString("dd/MM/yyyy")</span>
+            @if (Model.TrangThai != "DaDuyet") { <span class="status-badge @Model.TrangThai">@(Model.TrangThai == "ChoDuyet" ? "Chờ duyệt" : "Bị từ chối")</span> }
+            @if (User.IsInRole("NguoiDung")) { <button class="heart-button detail-heart @(ViewBag.IsFavorite == true ? "is-favorite" : "")" type="button" data-favorite-toggle data-recipe-id="@Model.MaCongThuc" aria-label="Lưu yêu thích" aria-pressed="@(ViewBag.IsFavorite == true)">♥ <span>Yêu thích</span></button> }
+        </div></div>
+        <div class="detail-layout">
+            <div class="detail-main">
+                <img class="detail-image" src="@Url.RecipeImage(Model.AnhDaiDien)" asp-append-version="true" alt="@Model.TieuDe" />
+                <section class="detail-section"><div class="detail-stats"><div><span>THỜI GIAN</span><strong>@Model.ThoiGianNauPhut <small>phút</small></strong></div><div><span>KHẨU PHẦN</span><strong>@Model.KhauPhan <small>người</small></strong></div><div><span>DANH MỤC</span><strong>@Model.DanhMuc.TenDanhMuc</strong></div></div></section>
+                <section class="detail-section"><p class="eyebrow">CHUẨN BỊ</p><h2>Nguyên liệu</h2><ul class="ingredient-list">@foreach (var ingredient in Model.NguyenLieus.OrderBy(x => x.MaNguyenLieu)){<li><span>@ingredient.TenNguyenLieu</span><span>@ingredient.DinhLuong</span></li>}</ul></section>
+                <section class="detail-section"><p class="eyebrow">CÙNG VÀO BẾP</p><h2>Các bước thực hiện</h2><ol class="step-list">@foreach (var step in Model.BuocThucHiens.OrderBy(x => x.SoThuTu)){<li><span class="step-number">@step.SoThuTu.ToString("00")</span><div>@step.NoiDung</div></li>}</ol></section>
+            </div>
+            <aside class="detail-aside"><div class="paper-card"><p class="eyebrow">TÁC GIẢ</p><h3>@Model.NguoiDung.HoTen</h3><p class="text-muted">Cùng chia sẻ những món quen thuộc trong bữa cơm gia đình.</p>@if (ViewBag.IsOwner == true){<a class="btn btn-outline-dark w-100" asp-action="Edit" asp-route-id="@Model.MaCongThuc">Sửa công thức</a>}</div><a class="back-link" asp-action="Index">← Xem thêm công thức</a></aside>
+        </div>
+    </div>
+</section>

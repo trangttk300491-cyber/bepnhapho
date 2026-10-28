@@ -1,0 +1,62 @@
+@{
+    var activeAdminAction = ViewContext.RouteData.Values["action"]?.ToString();
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Quản trị Bếp Nhà Phố</title>
+    <meta name="theme-color" content="#22201d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="admin-body">
+    <a class="skip-link" href="#admin-main-content">Bỏ qua điều hướng</a>
+    <div hidden>@Html.AntiForgeryToken()</div>
+    <div class="admin-shell">
+        <aside class="admin-sidebar" aria-label="Điều hướng quản trị">
+            <a class="admin-brand" asp-controller="Home" asp-action="Index" aria-label="Bếp Nhà Phố - Trang chủ">
+                <span class="brand-flower" aria-hidden="true">✣</span>
+                <span>BẾP <strong>NHÀ PHỐ</strong></span>
+            </a>
+            <p class="admin-sidebar-heading">QUẢN TRỊ NỘI DUNG</p>
+            <nav class="admin-sidebar-nav">
+                <a class="admin-sidebar-link @(activeAdminAction == "Statistics" ? "active" : "")" asp-controller="Admin" asp-action="Statistics" aria-current="@(activeAdminAction == "Statistics" ? "page" : null)">Thống kê</a>
+                <a class="admin-sidebar-link @(activeAdminAction == "Pending" ? "active" : "")" asp-controller="Admin" asp-action="Pending">Chờ duyệt</a>
+                <a class="admin-sidebar-link @(activeAdminAction == "Recipes" ? "active" : "")" asp-controller="Admin" asp-action="Recipes">Công thức</a>
+                <a class="admin-sidebar-link @(activeAdminAction == "Categories" ? "active" : "")" asp-controller="Admin" asp-action="Categories">Danh mục</a>
+                <a class="admin-sidebar-link @(activeAdminAction == "Users" ? "active" : "")" asp-controller="Admin" asp-action="Users">Người dùng</a>
+            </nav>
+        </aside>
+        <div class="admin-main">
+            <header class="admin-topbar">
+                <span class="admin-topbar-label">KHU VỰC QUẢN TRỊ</span>
+                <div class="admin-account">
+                    <span class="admin-user">@User.Identity?.Name</span>
+                    <form asp-controller="Account" asp-action="Logout" method="post">
+                        <button type="submit" class="admin-logout">Đăng xuất</button>
+                    </form>
+                </div>
+            </header>
+            <main id="admin-main-content" class="admin-content" tabindex="-1">
+                @if (TempData["Success"] is string success)
+                {
+                    <div class="container admin-alert" data-transient-notification><div class="alert alert-success alert-dismissible fade show" role="status">@success<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div></div>
+                }
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="container admin-alert" data-transient-notification><div class="alert alert-warning alert-dismissible fade show" role="alert">@error<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div></div>
+                }
+                @RenderBody()
+            </main>
+        </div>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

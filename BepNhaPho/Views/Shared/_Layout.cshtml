@@ -1,0 +1,97 @@
+@{
+    var currentController = ViewContext.RouteData.Values["controller"]?.ToString();
+    var currentAction = ViewContext.RouteData.Values["action"]?.ToString();
+    var recipeNavActive = currentController == "Recipe" && (currentAction is "Index" or "Search" or "Details");
+}
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>@ViewData["Title"] · Bếp Nhà Phố</title>
+    <meta name="theme-color" content="#22201d" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap" rel="stylesheet" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body>
+    <a class="skip-link" href="#main-content">Bỏ qua điều hướng</a>
+    <div hidden>@Html.AntiForgeryToken()</div>
+    <header class="site-header">
+        <nav class="navbar navbar-expand-xl navbar-dark container py-3" aria-label="Điều hướng chính">
+            <a class="navbar-brand" asp-controller="Home" asp-action="Index" aria-label="Bếp Nhà Phố - Trang chủ">
+                <span class="brand-lockup"><span class="brand-flower" aria-hidden="true">✣</span><span>BẾP <strong>NHÀ PHỐ</strong></span></span>
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Mở menu">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="mainNav">
+                <ul class="navbar-nav ms-auto align-items-lg-center gap-lg-1">
+                    <li class="nav-item"><a class="nav-link @(currentController == "Home" ? "active" : "")" asp-controller="Home" asp-action="Index" aria-current="@(currentController == "Home" ? "page" : null)">Trang chủ</a></li>
+                    <li class="nav-item"><a class="nav-link @(recipeNavActive ? "active" : "")" asp-controller="Recipe" asp-action="Index" aria-current="@(recipeNavActive ? "page" : null)">Công thức</a></li>
+                    @if (User.IsInRole("NguoiDung"))
+                    {
+                        <li class="nav-item"><a class="nav-link @(currentController == "Recipe" && currentAction is "Create" or "Edit" ? "active" : "")" asp-controller="Recipe" asp-action="Create">Đăng công thức</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Recipe" && currentAction == "Mine" ? "active" : "")" asp-controller="Recipe" asp-action="Mine">Của tôi</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Recipe" && currentAction == "Favorites" ? "active" : "")" asp-controller="Recipe" asp-action="Favorites">Đã lưu</a></li>
+                        <li class="nav-item"><a class="nav-link @(currentController == "Account" && currentAction is "Profile" or "ChangePassword" ? "active" : "")" asp-controller="Account" asp-action="Profile">Hồ sơ</a></li>
+                    }
+                    @if (User.IsInRole("QuanTri"))
+                    {
+                        <li class="nav-item dropdown">
+                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">Quản trị</a>
+                            <ul class="dropdown-menu dropdown-menu-end">
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Statistics">Thống kê</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Pending">Chờ duyệt</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Recipes">Công thức</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Categories">Danh mục</a></li>
+                                <li><a class="dropdown-item" asp-controller="Admin" asp-action="Users">Người dùng</a></li>
+                            </ul>
+                        </li>
+                    }
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <li class="nav-item ms-lg-2"><span class="nav-greeting">Xin chào, @User.Identity.Name</span></li>
+                        <li class="nav-item">
+                            <form asp-controller="Account" asp-action="Logout" method="post" class="d-inline">
+                                <button type="submit" class="btn btn-outline-light btn-sm nav-logout">Đăng xuất</button>
+                            </form>
+                        </li>
+                    }
+                    else
+                    {
+                        <li class="nav-item"><a class="nav-link" asp-controller="Account" asp-action="Login">Đăng nhập</a></li>
+                        <li class="nav-item ms-lg-2"><a class="btn btn-gold btn-sm" asp-controller="Account" asp-action="Register">Đăng ký</a></li>
+                    }
+                </ul>
+            </div>
+        </nav>
+    </header>
+
+    <div id="favorite-notification" class="favorite-notification" role="status" aria-live="polite" aria-atomic="true"></div>
+
+    <main id="main-content" tabindex="-1">
+        @if (TempData["Success"] is string success)
+        {
+            <div class="container pt-3" data-transient-notification><div class="alert alert-success alert-dismissible fade show" role="status">@success<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div></div>
+        }
+        @if (TempData["Error"] is string error)
+        {
+            <div class="container pt-3" data-transient-notification><div class="alert alert-warning alert-dismissible fade show" role="alert">@error<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Đóng"></button></div></div>
+        }
+        @RenderBody()
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <a asp-controller="Home" asp-action="Index" class="footer-brand"><span class="brand-lockup"><span class="brand-flower" aria-hidden="true">✣</span><span>BẾP <strong>NHÀ PHỐ</strong></span></span></a>
+            <p>Góc nhỏ để cùng nấu những món ngon mỗi ngày.</p>
+        </div>
+    </footer>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

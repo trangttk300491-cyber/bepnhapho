@@ -1,0 +1,13 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "build BepNhaPho",
+      "type": "process",
+      "command": "dotnet",
+      "args": ["build", "${workspaceFolder}/BepNhaPho.csproj"],
+      "problemMatcher": "$msCompile",
+      "group": "build"
+    }
+  ]
+}

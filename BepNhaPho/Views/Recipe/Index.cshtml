@@ -1,0 +1,57 @@
+@model RecipeListViewModel
+@{ ViewData["Title"] = "Danh sách công thức"; }
+<section class="hero-banner">
+    <div class="hero-shade"></div>
+    <div class="container hero-content">
+        <p class="eyebrow">BẾP NHÀ PHỐ · MÓN NGON TỪ NHÀ</p>
+        <h1>Mỗi món ăn là<br /><em>một câu chuyện.</em></h1>
+        <p class="hero-copy">Tìm cảm hứng, lưu lại công thức yêu thích và chia sẻ hương vị của căn bếp nhà bạn.</p>
+        <form asp-controller="Recipe" asp-action="Search" method="get" class="search-panel row g-2">
+            <div class="col-lg"><label class="visually-hidden" for="q">Tên món hoặc nguyên liệu</label><input id="q" name="q" value="@Model.Query" class="form-control form-control-lg" placeholder="Tên món ăn hoặc nguyên liệu..." /></div>
+            <div class="col-sm-7 col-lg-3"><label class="visually-hidden" for="categoryId">Danh mục</label><select id="categoryId" name="categoryId" class="form-select form-select-lg"><option value="">Tất cả danh mục</option>@foreach (var category in Model.Categories){<option value="@category.MaDanhMuc" selected="@(Model.CategoryId == category.MaDanhMuc)">@category.TenDanhMuc</option>}</select></div>
+            <div class="col-sm-5 col-lg-auto"><button class="btn btn-gold btn-lg w-100" type="submit">Tìm công thức</button></div>
+        </form>
+    </div>
+</section>
+
+<section class="section-space">
+    <div class="container">
+        <div class="section-heading d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div><p class="eyebrow">DANH SÁCH CÔNG THỨC</p><h2>@Model.Heading</h2><p class="text-muted mb-0">Tìm và lọc các món ăn đã được cộng đồng bếp nhà chia sẻ.</p></div>
+            @if (User.IsInRole("NguoiDung")) { <a asp-action="Create" class="text-link">Chia sẻ công thức <span aria-hidden="true">↗</span></a> }
+        </div>
+        @if (Model.Recipes.Count == 0)
+        {
+            <div class="empty-state"><span class="empty-mark" aria-hidden="true">⌕</span><h3>Chưa tìm thấy công thức phù hợp</h3><p>Thử từ khóa khác hoặc chọn tất cả danh mục nhé.</p><a asp-action="Index" class="btn btn-outline-dark">Xem tất cả công thức</a></div>
+        }
+        else
+        {
+            <div class="row g-4 recipe-grid">
+                @foreach (var card in Model.Recipes)
+                {
+                    <div class="col-sm-6 col-lg-4">
+                        <article class="recipe-card h-100">
+                            <a asp-action="Details" asp-route-id="@card.Recipe.MaCongThuc" class="recipe-photo-wrap"><img class="recipe-photo" src="@Url.RecipeImage(card.Recipe.AnhDaiDien)" asp-append-version="true" alt="@card.Recipe.TieuDe" loading="lazy" /><span class="category-pill">@card.Recipe.DanhMuc.TenDanhMuc</span></a>
+                            <div class="recipe-card-body">
+                                <div class="recipe-meta"><span>@card.Recipe.ThoiGianNauPhut phút</span><span>@card.Recipe.KhauPhan khẩu phần</span></div>
+                                <h3><a asp-action="Details" asp-route-id="@card.Recipe.MaCongThuc">@card.Recipe.TieuDe</a></h3>
+                                <p>@(card.Recipe.MoTa.Length > 110 ? card.Recipe.MoTa[..107] + "…" : card.Recipe.MoTa)</p>
+                                <div class="recipe-card-foot"><span>Bếp nhà · @card.Recipe.NgayTao.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                    @if (User.IsInRole("NguoiDung")) { <button class="heart-button @(card.IsFavorite ? "is-favorite" : "")" type="button" data-favorite-toggle data-recipe-id="@card.Recipe.MaCongThuc" aria-label="@(card.IsFavorite ? "Bỏ khỏi yêu thích" : "Lưu yêu thích")" aria-pressed="@card.IsFavorite">♥</button> }
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+            @if (Model.TotalPages > 1)
+            {
+                <nav class="mt-5" aria-label="Phân trang công thức"><ul class="pagination justify-content-center">
+                    <li class="page-item @(Model.Page <= 1 ? "disabled" : "")"><a class="page-link" asp-action="Search" asp-route-q="@Model.Query" asp-route-categoryId="@Model.CategoryId" asp-route-page="@(Model.Page - 1)">Trước</a></li>
+                    @for (var number = 1; number <= Model.TotalPages; number++) { <li class="page-item @(number == Model.Page ? "active" : "")"><a class="page-link" asp-action="Search" asp-route-q="@Model.Query" asp-route-categoryId="@Model.CategoryId" asp-route-page="@number">@number</a></li> }
+                    <li class="page-item @(Model.Page >= Model.TotalPages ? "disabled" : "")"><a class="page-link" asp-action="Search" asp-route-q="@Model.Query" asp-route-categoryId="@Model.CategoryId" asp-route-page="@(Model.Page + 1)">Tiếp</a></li>
+                </ul></nav>
+            }
+        }
+    </div>
+</section>

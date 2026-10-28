@@ -1,0 +1,60 @@
+@model RecipeListViewModel
+@{
+    ViewData["Title"] = "Trang chủ";
+}
+
+<section class="home-intro">
+    <div class="container home-intro-grid">
+        <div class="home-intro-copy">
+            <p class="eyebrow">BẾP NHÀ PHỐ · MÓN NGON TỪ NHÀ</p>
+            <h1>Bữa cơm ngon<br />bắt đầu từ <em>chia sẻ.</em></h1>
+            <p>Khám phá những công thức thân quen, lưu món bạn yêu thích và cùng cộng đồng làm phong phú thêm căn bếp mỗi ngày.</p>
+            <div class="home-intro-actions">
+                <a asp-controller="Recipe" asp-action="Index" class="btn btn-gold btn-lg">Khám phá công thức</a>
+                @if (User.IsInRole("NguoiDung"))
+                {
+                    <a asp-controller="Recipe" asp-action="Create" class="home-secondary-link">Chia sẻ món của bạn <span aria-hidden="true">↗</span></a>
+                }
+            </div>
+        </div>
+        <div class="home-intro-visual">
+            <img src="~/img/banners/bua-com-viet.jpg" asp-append-version="true" alt="Bữa cơm gia đình Việt với cá kho tộ, canh chua, rau xanh và cơm trắng" />
+            <div class="home-photo-note"><span class="brand-flower" aria-hidden="true">✣</span><span><strong>Món ngon mỗi ngày</strong><small>Gom góp từ căn bếp nhà</small></span></div>
+        </div>
+    </div>
+</section>
+
+<section class="home-latest section-space">
+    <div class="container">
+        <div class="section-heading d-flex flex-wrap align-items-end justify-content-between gap-3">
+            <div><p class="eyebrow">MỚI TỪ CỘNG ĐỒNG</p><h2>Món ngon mới được chia sẻ</h2><p class="text-muted mb-0">Những công thức đã được duyệt, sẵn sàng để bạn vào bếp.</p></div>
+            <a asp-controller="Recipe" asp-action="Index" class="text-link">Xem tất cả công thức <span aria-hidden="true">↗</span></a>
+        </div>
+
+        @if (Model.Recipes.Count == 0)
+        {
+            <div class="empty-state"><span class="empty-mark" aria-hidden="true">⌕</span><h3>Chưa có công thức nào</h3><p>Các món mới sẽ xuất hiện tại đây sau khi được duyệt.</p><a asp-controller="Recipe" asp-action="Index" class="btn btn-outline-dark">Đến danh sách công thức</a></div>
+        }
+        else
+        {
+            <div class="row g-4 recipe-grid">
+                @foreach (var card in Model.Recipes)
+                {
+                    <div class="col-sm-6 col-lg-4">
+                        <article class="recipe-card h-100">
+                            <a asp-controller="Recipe" asp-action="Details" asp-route-id="@card.Recipe.MaCongThuc" class="recipe-photo-wrap"><img class="recipe-photo" src="@Url.RecipeImage(card.Recipe.AnhDaiDien)" asp-append-version="true" alt="@card.Recipe.TieuDe" loading="lazy" /><span class="category-pill">@card.Recipe.DanhMuc.TenDanhMuc</span></a>
+                            <div class="recipe-card-body">
+                                <div class="recipe-meta"><span>@card.Recipe.ThoiGianNauPhut phút</span><span>@card.Recipe.KhauPhan khẩu phần</span></div>
+                                <h3><a asp-controller="Recipe" asp-action="Details" asp-route-id="@card.Recipe.MaCongThuc">@card.Recipe.TieuDe</a></h3>
+                                <p>@(card.Recipe.MoTa.Length > 110 ? card.Recipe.MoTa[..107] + "…" : card.Recipe.MoTa)</p>
+                                <div class="recipe-card-foot"><span>Bếp nhà · @card.Recipe.NgayTao.ToLocalTime().ToString("dd/MM/yyyy")</span>
+                                    @if (User.IsInRole("NguoiDung")) { <button class="heart-button @(card.IsFavorite ? "is-favorite" : "")" type="button" data-favorite-toggle data-recipe-id="@card.Recipe.MaCongThuc" aria-label="@(card.IsFavorite ? "Bỏ khỏi yêu thích" : "Lưu yêu thích")" aria-pressed="@card.IsFavorite">♥</button> }
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                }
+            </div>
+        }
+    </div>
+</section>

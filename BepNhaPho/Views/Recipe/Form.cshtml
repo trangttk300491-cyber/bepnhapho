@@ -1,0 +1,28 @@
+@model RecipeFormViewModel
+@{ ViewData["Title"] = Model.MaCongThuc.HasValue ? "Sửa công thức" : "Đăng công thức"; var editing = Model.MaCongThuc.HasValue; }
+<section class="page-section"><div class="container form-container">
+    <div class="section-heading"><p class="eyebrow">GÓC BẾP CỦA BẠN</p><h1>@(editing ? "Sửa công thức" : "Chia sẻ công thức")</h1><p class="text-muted">@(editing ? "Sau khi chỉnh sửa, công thức sẽ được gửi lại để duyệt." : "Kể cho mọi người nghe về món ngon của bạn.")</p></div>
+    <form asp-action="@(editing ? "Edit" : "Create")" asp-route-id="@Model.MaCongThuc" method="post" enctype="multipart/form-data" class="paper-card recipe-form">
+        <div asp-validation-summary="ModelOnly" class="validation-summary"></div>
+        <input asp-for="MaCongThuc" type="hidden" />
+        <input asp-for="AnhHienTai" type="hidden" />
+        <div class="row g-4">
+            <div class="col-md-8"><label asp-for="TieuDe" class="form-label">Tên món ăn</label><input asp-for="TieuDe" class="form-control" placeholder="Ví dụ: Bún bò Huế nhà làm" /><span asp-validation-for="TieuDe" class="field-error"></span></div>
+            <div class="col-md-4"><label asp-for="MaDanhMuc" class="form-label">Danh mục</label><select asp-for="MaDanhMuc" class="form-select"><option value="">Chọn danh mục</option>@foreach(var category in Model.DanhMucs){<option value="@category.MaDanhMuc">@category.TenDanhMuc</option>}</select><span asp-validation-for="MaDanhMuc" class="field-error"></span></div>
+            <div class="col-12"><label asp-for="MoTa" class="form-label">Mô tả món ăn</label><textarea asp-for="MoTa" rows="4" class="form-control" placeholder="Hương vị, dịp phù hợp hoặc điều bạn thích ở món này..."></textarea><span asp-validation-for="MoTa" class="field-error"></span></div>
+            <div class="col-sm-6"><label asp-for="ThoiGianNauPhut" class="form-label">Thời gian nấu (phút)</label><input asp-for="ThoiGianNauPhut" class="form-control" min="1" /><span asp-validation-for="ThoiGianNauPhut" class="field-error"></span></div>
+            <div class="col-sm-6"><label asp-for="KhauPhan" class="form-label">Khẩu phần (người)</label><input asp-for="KhauPhan" class="form-control" min="1" /><span asp-validation-for="KhauPhan" class="field-error"></span></div>
+            <div class="col-12"><label asp-for="AnhDaiDien" class="form-label">Ảnh đại diện <span class="form-hint">JPG hoặc PNG · tối đa 2 MB</span></label><input asp-for="AnhDaiDien" class="form-control" type="file" accept=".jpg,.jpeg,.png,image/jpeg,image/png" /><span asp-validation-for="AnhDaiDien" class="field-error"></span>@if(editing && !string.IsNullOrEmpty(Model.AnhHienTai)){<img class="form-current-image" src="@Url.RecipeImage(Model.AnhHienTai)" asp-append-version="true" alt="Ảnh hiện tại" />}</div>
+        </div>
+        <hr class="form-divider" />
+        <div class="dynamic-section"><div class="dynamic-heading"><div><p class="eyebrow">ĐỂ MỌI THỨ SẴN SÀNG</p><h2>Nguyên liệu</h2></div><button class="btn btn-outline-dark btn-sm" type="button" data-add-row="ingredients">+ Thêm nguyên liệu</button></div>
+            <div id="ingredients" class="dynamic-rows">@for(var i = 0; i < Model.NguyenLieus.Count; i++){<div class="dynamic-row ingredient-row"><div><label class="visually-hidden" for="NguyenLieus_@(i)__TenNguyenLieu">Tên nguyên liệu</label><input id="NguyenLieus_@(i)__TenNguyenLieu" name="NguyenLieus[@i].TenNguyenLieu" value="@Model.NguyenLieus[i].TenNguyenLieu" class="form-control" placeholder="Tên nguyên liệu" /><span class="field-error" data-valmsg-for="NguyenLieus[@i].TenNguyenLieu"></span></div><div><label class="visually-hidden" for="NguyenLieus_@(i)__DinhLuong">Định lượng</label><input id="NguyenLieus_@(i)__DinhLuong" name="NguyenLieus[@i].DinhLuong" value="@Model.NguyenLieus[i].DinhLuong" class="form-control" placeholder="Ví dụ: 200 g" /><span class="field-error" data-valmsg-for="NguyenLieus[@i].DinhLuong"></span></div><button class="remove-row" type="button" aria-label="Xóa nguyên liệu">×</button></div>}</div>
+        </div>
+        <hr class="form-divider" />
+        <div class="dynamic-section"><div class="dynamic-heading"><div><p class="eyebrow">TỪNG BƯỚC MỘT</p><h2>Cách thực hiện</h2></div><button class="btn btn-outline-dark btn-sm" type="button" data-add-row="steps">+ Thêm bước</button></div>
+            <div id="steps" class="dynamic-rows">@for(var i = 0; i < Model.BuocThucHiens.Count; i++){<div class="dynamic-row step-row"><span class="step-number">@(i + 1). </span><div><label class="visually-hidden" for="BuocThucHiens_@(i)__NoiDung">Nội dung bước @(i + 1)</label><textarea id="BuocThucHiens_@(i)__NoiDung" name="BuocThucHiens[@i].NoiDung" rows="2" class="form-control" placeholder="Mô tả bước @(i + 1)...">@Model.BuocThucHiens[i].NoiDung</textarea><span class="field-error" data-valmsg-for="BuocThucHiens[@i].NoiDung"></span></div><button class="remove-row" type="button" aria-label="Xóa bước">×</button></div>}</div>
+        </div>
+        <div class="form-actions"><a asp-action="Mine" class="text-link">Hủy</a><button type="submit" class="btn btn-gold btn-lg">@(editing ? "Lưu và gửi duyệt" : "Gửi công thức")</button></div>
+    </form>
+</div></section>
+@section Scripts { <partial name="_ValidationScriptsPartial" /> }
